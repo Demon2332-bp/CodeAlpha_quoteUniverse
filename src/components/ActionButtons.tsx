@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, ChevronRight, Download, FileText, Volume2, Share2, Link, Mail, MessageCircle } from 'lucide-react';
+import { Copy, ChevronRight, Download, FileText, Volume2 } from 'lucide-react';
 import type { Quote } from '../types';
 import { copyQuoteToClipboard } from '../utils/downloadUtils';
 import { downloadQuoteAsImage, downloadQuoteAsText } from '../utils/downloadUtils';
-import { shareOptions } from '../utils/shareUtils';
 import type { BackgroundImage } from '../utils/backgroundImages';
 
 interface ActionButtonsProps {
@@ -17,7 +16,6 @@ interface ActionButtonsProps {
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({ quote, onNext, onStart, onCopied, backgroundImage }) => {
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
-  const [showShareMenu, setShowShareMenu] = useState(false);
   const [showCopiedNotification, setShowCopiedNotification] = useState(false);
 
   if (!quote) {
@@ -73,13 +71,6 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ quote, onNext, onS
     setShowDownloadMenu(false);
   };
 
-  const handleShareOption = async (action: (quote: Quote) => void | Promise<void>) => {
-    if (!quote) return;
-    await action(quote);
-    setShowShareMenu(false);
-    setShowDownloadMenu(false);
-  };
-
   const handleNarrate = () => {
     if (!quote) return;
     if ('speechSynthesis' in window) {
@@ -113,7 +104,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ quote, onNext, onS
       </AnimatePresence>
 
       {/* Main Action Buttons */}
-      <div className="grid grid-cols-2 md:grid-cols-5 xl:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-4 gap-3">
         {/* Copy Button */}
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -176,60 +167,6 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ quote, onNext, onS
                   <Copy size={18} />
                   Copy Text
                 </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* Share Button */}
-        <motion.div className="relative">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              setShowShareMenu(!showShareMenu);
-              setShowDownloadMenu(false);
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-semibold transition-colors"
-          >
-            <Share2 size={18} />
-            <span className="hidden md:inline">Share</span>
-          </motion.button>
-
-          <AnimatePresence>
-            {showShareMenu && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: -10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: -10 }}
-                className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-2xl z-50 overflow-hidden min-w-[220px]"
-              >
-                {shareOptions.map((option) => {
-                  const iconMap: Record<string, React.ElementType> = {
-                    Copy,
-                    Twitter: Link,
-                    Facebook: Link,
-                    Linkedin: Link,
-                    Email: Mail,
-                    WhatsApp: MessageCircle
-                  };
-
-                  const Icon = iconMap[option.icon] ?? Link;
-
-                  return (
-                    <motion.button
-                      key={option.name}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.05 }}
-                      onClick={() => void handleShareOption(option.action)}
-                      className="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
-                    >
-                      <Icon size={18} />
-                      {option.name}
-                    </motion.button>
-                  );
-                })}
               </motion.div>
             )}
           </AnimatePresence>
